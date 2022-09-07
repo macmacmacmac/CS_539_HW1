@@ -260,6 +260,24 @@ class Tree(object):
     
     #--------------------------
     @staticmethod
+    def render(t, level, val):
+        X = t.X
+        Y = t.Y
+        t.p = Tree.most_common(Y)
+        if not (Tree.stop1(Y) or Tree.stop2(X)):
+            t.isleaf = False
+            t.i = Tree.best_attribute(X, Y)
+            t.C = Tree.split(X, Y, t.i)
+            print(level, t.i, val)
+            level += "|"
+            values = t.C.keys()
+            for value in values:
+                t.C[value] = Node(t.C[value].X, t.C[value].Y)
+                Tree.render(t.C[value], level, value)
+        else:
+            t.isleaf = True
+    # --------------------------
+    @staticmethod
     def build_tree(t):
         '''
             Recursively build tree nodes.
@@ -276,19 +294,17 @@ class Tree(object):
         ## INSERT YOUR CODE HERE
         X = t.X
         Y = t.Y
+        t.p = Tree.most_common(Y)
         if not (Tree.stop1(Y) or Tree.stop2(X)):
             t.isleaf = False
             t.i = Tree.best_attribute(X, Y)
             t.C = Tree.split(X, Y, t.i)
             values = t.C.keys()
             for value in values:
-                print("value", value)
-                print("X", t.C[value].X)
-                print("Y", t.C[value].Y)
-                t.C[value] = Tree.build_tree(t.C[value])
+                t.C[value] = Node(t.C[value].X, t.C[value].Y)
+                Tree.build_tree(t.C[value])
         else:
             t.isleaf = True
-            t.p = Tree.most_common(Y)
         #################+########################
 
     
@@ -308,8 +324,8 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
-    
-
+        t = Node(X=X, Y=Y)
+        trained_tree = Tree.build_tree(t)
 
  
         #########################################
@@ -332,13 +348,11 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
-
-   
-
-
-
-
- 
+        if not (t.isleaf or ((x[t.i]) not in t.C)):
+            next_t = t.C[x[t.i]]
+            y = Tree.inference(next_t, x)
+        else:
+            y = t.p
         #########################################
         return y
     
@@ -358,9 +372,11 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
-
-
-
+        num_rows, num_cols = X.shape
+        Y = np.array([])
+        for col in range(num_cols):
+            y = Tree.inference(t, X[:,col])
+            Y = np.append(Y,y)
 
 
         #########################################
@@ -380,7 +396,7 @@ class Tree(object):
             Input:
                 filename: the filename of the dataset, a string.
             Output:
-                X: the feature matrix, a numpy matrix of shape p by n.
+                X: the feature matrix, a numpy matrix of shape p by
                    Each element can be int/float/string.
                    Here n is the number data instances in the dataset, p is the number of attributes.
                 Y: the class labels, a numpy array of length n.
@@ -388,12 +404,15 @@ class Tree(object):
         '''
         #########################################
         ## INSERT YOUR CODE HERE
-
-
-
- 
+        import pandas as pd
+        df = pd.read_csv(filepath_or_buffer = "./"+filename,
+                         header = None)
+        Y = df.iloc[1:,0].to_numpy()
+        X = df.iloc[1:,1:].to_numpy()
+        X = np.transpose(X)
         #########################################
         return X,Y
+
 
 
 
