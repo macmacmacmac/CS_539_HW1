@@ -260,22 +260,16 @@ class Tree(object):
     
     #--------------------------
     @staticmethod
-    def render(t, level, val):
-        X = t.X
-        Y = t.Y
-        t.p = Tree.most_common(Y)
-        if not (Tree.stop1(Y) or Tree.stop2(X)):
-            t.isleaf = False
-            t.i = Tree.best_attribute(X, Y)
-            t.C = Tree.split(X, Y, t.i)
-            print(level, t.i, val)
-            level += "|"
+    def render(t, depth, breadth, header, val):
+        if not t.isleaf:
             values = t.C.keys()
+            depth += " |"
             for value in values:
-                t.C[value] = Node(t.C[value].X, t.C[value].Y)
-                Tree.render(t.C[value], level, value)
+                print(depth + breadth, header[t.i], ": ", value)
+                Tree.render(t.C[value], depth, breadth, header, value)
         else:
-            t.isleaf = True
+            depth += " |"
+            print(depth + breadth, header[header.size -1],"=", t.p)
     # --------------------------
     @staticmethod
     def build_tree(t):
